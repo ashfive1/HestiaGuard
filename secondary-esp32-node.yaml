@@ -1,0 +1,91 @@
+esphome:
+  name: secondary_esp32_node
+  friendly_name: Secondary ESP32 Node
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+wifi:
+  ssid: "Home"
+  password: "chn12345"
+  ap:
+    ssid: "ESP32-Fallback"
+    password: "12345678"
+
+logger:
+api:
+ota:
+  - platform: esphome
+
+############################################
+# SENSORS
+############################################
+sensor:
+
+  # -------- ROOM 1 — DHT22 --------
+  - platform: dht
+    pin: GPIO25
+    model: DHT22
+    temperature:
+      name: "Room 1 Temperature"
+      unit_of_measurement: "°C"
+    humidity:
+      name: "Room 1 Humidity"
+      unit_of_measurement: "%"
+    update_interval: 2s
+
+  # -------- ROOM 1 — CURRENT --------
+  - platform: adc
+    pin: GPIO35
+    name: "Room 1 Current"
+    attenuation: 11db
+    update_interval: 1s
+    filters:
+      - lambda: |-
+          float voltage = x * 3.3;
+          return (voltage - 2.5) / 0.066;
+
+  # -------- KITCHEN — HEAT --------
+  - platform: adc
+    pin: GPIO32
+    name: "Kitchen Heat Analog"
+    attenuation: 11db
+    update_interval: 1s
+
+############################################
+# BINARY SENSORS
+############################################
+binary_sensor:
+
+  # -------- KITCHEN — FLAME --------
+  - platform: gpio
+    pin: GPIO27
+    name: "Kitchen Flame Detected"
+    device_class: heat
+
+############################################
+# RELAYS — ROOM POWER CONTROL
+############################################
+switch:
+
+  - platform: gpio
+    pin: GPIO12
+    name: "kitchen"
+
+  - platform: gpio
+    pin: GPIO13
+    name: "room1"
+
+  - platform: gpio
+    pin: GPIO14
+    name: "bedroom"
+
+  - platform: gpio
+    pin: GPIO33
+    name: "room2"
+
+  - platform: gpio
+    pin: GPIO26
+    name: "door"
